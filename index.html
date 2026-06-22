@@ -581,7 +581,7 @@
     <div class="feedback-emoji" id="feedback-emoji"></div>
     <div class="feedback-texto" id="feedback-texto"></div>
     <div id="feedback-respuesta" style="font-size:1rem;color:#90A4AE;font-weight:700;margin-bottom:16px;"></div>
-    <button class="btn-siguiente" onclick="siguientePregunta()">¡Siguiente! →</button>
+
   </div>
 </div>
 
@@ -628,9 +628,9 @@ const datos_juego2 = [
   { imagen:'🐶', palabra:'PERRO' },
   { imagen:'🐑', palabra:'OVEJA' },
   { imagen:'🎈', palabra:'GLOBO' },
-  { imagen:'🍎', palabra:'PERA' },
+  { imagen:'🍐', palabra:'PERA' },
   { imagen:'🐯', palabra:'TIGRE' },
-  { imagen:'🌴', palabra:'PALMA' },
+  { imagen:'🌴', palabra:'PALMERA' },
   { imagen:'🐐', palabra:'CABRA' },
   { imagen:'🐴', palabra:'YEGUA' },
   { imagen:'🦊', palabra:'ZORRO' },
@@ -648,16 +648,16 @@ const datos_juego3 = [
   { imagen:'🐻', palabra:'OSO',    hueco:1, opciones:['S','T','R','N'] },
   { imagen:'🐄', palabra:'VACA',   hueco:1, opciones:['A','E','O','I'] },
   { imagen:'🍓', palabra:'FRESA',  hueco:2, opciones:['E','A','O','I'] },
-  { imagen:'🍎', palabra:'PERA',   hueco:1, opciones:['E','A','O','I'] },
+  { imagen:'🍎', palabra:'MANZANA', hueco:1, opciones:['A','E','O','I'] },
   { imagen:'🌸', palabra:'FLOR',   hueco:2, opciones:['O','A','E','U'] },
   { imagen:'🐑', palabra:'OVEJA',  hueco:2, opciones:['E','A','O','I'] },
   { imagen:'🎈', palabra:'GLOBO',  hueco:1, opciones:['L','R','N','M'] },
-  { imagen:'🌵', palabra:'NOPAL',  hueco:2, opciones:['P','B','T','D'] },
+  { imagen:'🌵', palabra:'CACTUS', hueco:2, opciones:['C','B','T','D'] },
   { imagen:'🦒', palabra:'JIRAFA', hueco:2, opciones:['R','L','N','M'] },
   { imagen:'🐯', palabra:'TIGRE',  hueco:1, opciones:['I','A','E','O'] },
   { imagen:'🍌', palabra:'PLATANO',hueco:3, opciones:['T','D','N','M'] },
   { imagen:'🐍', palabra:'VIBORA', hueco:3, opciones:['O','A','E','I'] },
-  { imagen:'🌴', palabra:'PALMA',  hueco:2, opciones:['L','R','N','T'] },
+  { imagen:'🌴', palabra:'PALMERA', hueco:2, opciones:['L','R','N','T'] },
 ];
 
 // =====================================================
@@ -761,6 +761,7 @@ function mostrarFeedback(correcto, respuesta_correcta='') {
   }
 
   overlay.classList.add('visible');
+  setTimeout(() => siguientePregunta(), correcto ? 1500 : 2500);
 }
 
 function siguientePregunta() {
@@ -783,7 +784,7 @@ function mostrarFinal() {
         Ganaste <strong style="color:var(--verde);">${puntos}</strong> puntos de ${MAX_PREGUNTAS*10} posibles
       </div>
       <div style="font-size:3rem;margin-bottom:28px;">${getMedalla()}</div>
-      <button class="btn-verificar" style="display:inline-block;background:var(--coral);box-shadow:0 6px 0 #D84315;" onclick="volverInicio()">
+      <button class="btn-verificar" style="display:inline-block;background:var(--coral);box-shadow:0 6px 0 #D84315;" onclick="iniciarJuego(juego_actual)">
         ¡Jugar de nuevo! 🎮
       </button>
     </div>
@@ -864,9 +865,6 @@ function mostrarJuego2(area) {
     <div class="imagen-palabra">${p.imagen}</div>
     <div class="hueco-palabra" id="huecos"></div>
     <div class="letras-disponibles" id="letras-pool"></div>
-    <button class="btn-verificar" id="btn-ver" onclick="verificarJuego2('${p.palabra}')">
-      ✅ Verificar
-    </button>
   `;
 
   // Renderizar huecos
@@ -885,8 +883,6 @@ function mostrarJuego2(area) {
       // Reactivar la ficha en el pool
       const fichaBtn = area.querySelector(`.letra-disponible[data-fid="${fichaId}"]`);
       if (fichaBtn) fichaBtn.classList.remove('usada');
-      // Ocultar botón verificar si hay huecos vacíos
-      document.getElementById('btn-ver').style.display = 'none';
     };
     huecos_div.appendChild(h);
   }
@@ -911,9 +907,11 @@ function mostrarJuego2(area) {
           break;
         }
       }
-      // Mostrar botón verificar si todos los huecos están llenos
+      // Verificar automáticamente al llenar el último hueco
       if (!huecos_estado.includes(null)) {
-        document.getElementById('btn-ver').style.display = 'inline-block';
+        area.querySelectorAll('.letra-disponible').forEach(b => b.style.pointerEvents = 'none');
+        area.querySelectorAll('.hueco-letra').forEach(b => b.style.pointerEvents = 'none');
+        setTimeout(() => verificarJuego2(p.palabra), 300);
       }
     };
     poolDiv.appendChild(l);
